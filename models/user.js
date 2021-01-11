@@ -150,7 +150,7 @@ class User {
       };
     });
 
-    }
+    
   }
 
   /** Return messages to this user.
