@@ -13,8 +13,7 @@ class User {
    */
 
 	static async register({ username, password, first_name, last_name, phone }) {
-		const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-		const timeWithoutTimeZone = new Date().toISOString();
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 		const result = await db.query(
 			`INSERT INTO users (username,
                           password,
@@ -24,16 +23,16 @@ class User {
                           join_at,
                           last_login_at)
         VALUES
-        ($1, $2, $3, $4, $5, $6, current_timestamp)
+        ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
         RETURNING username, password, first_name, last_name, phone`,
-			[ username, hashedPassword, first_name, last_name, phone, timeWithoutTimeZone ]
+			[ username, hashedPassword, first_name, last_name, phone ]
 		);
 
 		return result.rows[0];
 	}
-
-	/** Authenticate: is username/password valid? Returns boolean. */
-
+  
+  /** Authenticate: is username/password valid? Returns boolean. */
+  
 	static async authenticate(username, password) {
 		const result = await db.query(
 			`SELECT username,
@@ -43,26 +42,26 @@ class User {
 			[ username ]
 		);
 		const user = result.rows[0];
-
-		if (user) {
-			if ((await bcrypt.compare(password, user.password)) === true) {
-				return true;
-			}
-		}
-		return false;
+ 
+    return (user && 
+      (await bcrypt.compare(password, user.password)) === true);
 	}
 
-	/** Update last_login_at for user */
-
+  /** Update last_login_at for user */
+  
 	static async updateLoginTimestamp(username) {
-		await db.query(
+		const result = await db.query(
 			`UPDATE users
        SET last_login_at = current_timestamp
-         WHERE username = $1`,
+         WHERE username = $1
+         RETURNING username, password, first_name, last_name, phone `,
 			[ username ]
 		);
+    const user = result.rows[0]; 
 
-		// QUESTION: Is there a pro coding way to ensure this is done besides testing? (i.e. console.log message)
+    if (!user) throw new NotFoundError(`No such user: ${username}`);
+
+    return user; 
 	}
 
 	/** All: basic info on all users:
@@ -73,7 +72,8 @@ class User {
 			`SELECT username,
               first_name,
               last_name
-        FROM users`
+        FROM users
+        ORDER BY username`
 		);
 
 		return results.rows;
@@ -120,22 +120,22 @@ class User {
 			`SELECT m.id,
               m.from_username,
               m.to_username,
-              t.first_name AS to_first_name,
-              t.last_name AS to_last_name,
-              t.phone AS to_phone,
+              u.first_name AS to_first_name,
+              u.last_name AS to_last_name,
+              u.phone AS to_phone,
               m.body,
               m.sent_at,
               m.read_at
         FROM messages AS m
-        JOIN users AS t ON m.to_username = t.username
+        JOIN users AS u ON m.to_username = u.username
         WHERE m.from_username = $1`,
 			[ username ]
 		);
 		const messages = results.rows;
 
-		if (!messages) throw new NotFoundError(`No messages from user: ${username}`);
+		if (messages.length === 0) throw new NotFoundError(`No messages from user: ${username}`);
 
-		return messages.map((m) => {
+		return messages.map( m => {
 			return {
 				id: m.id,
 				to_user: {
@@ -164,22 +164,22 @@ class User {
 			`SELECT m.id,
               m.from_username,
               m.to_username,
-              f.first_name AS from_first_name,
-              f.last_name AS from_last_name,
-              f.phone AS from_phone,
+              u.first_name AS from_first_name,
+              u.last_name AS from_last_name,
+              u.phone AS from_phone,
               m.body,
               m.sent_at,
               m.read_at
           FROM messages AS m
-          JOIN users AS f ON m.from_username = f.username
+          JOIN users AS u ON m.from_username = u.username
           WHERE m.to_username = $1`,
 			[ username ]
 		);
 		const messages = results.rows;
 
-		if (!messages) throw new NotFoundError(`No messages to user: ${username}`);
+		if (messages.length === 0) throw new NotFoundError(`No messages to user: ${username}`);
 
-		return messages.map((m) => {
+		return messages.map( m => {
 			return {
 				id: m.id,
 				from_user: {
