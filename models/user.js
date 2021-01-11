@@ -21,9 +21,10 @@ class User {
                           first_name,
                           last_name,
                           phone,
-                          join_at)
+                          join_at,
+                          last_login_at)
         VALUES
-        ($1, $2, $3, $4, $5, current_timestamp)
+        ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
         RETURNING username, password, first_name, last_name, phone`,
       [username, hashedPassword, first_name, last_name, phone]);
 
@@ -55,8 +56,7 @@ class User {
     const result = await db.query(
       `UPDATE users
        SET last_login_at = current_timestamp
-         WHERE username = $1
-         RETURNING id, read_at`,
+         WHERE username = $1`,
        [username]);
     
     // QUESTION: Is there a pro coding way to ensure this is done besides testing? (i.e. console.log message)
@@ -73,7 +73,7 @@ class User {
         FROM users`
       );
     
-    return results.row;
+    return results.rows;
   }
 
   /** Get: get user by username
@@ -88,7 +88,6 @@ class User {
   static async get(username) {
     const result = await db.query(
       `SELECT username,
-              password,
               first_name,
               last_name,
               phone,
@@ -137,13 +136,13 @@ class User {
     if (!messages) throw new NotFoundError(`No messages for user: ${username}`);
 
     return messages.map( m => {
-      {
+      return {
         id: m.id,
         to_user: {
           username: m.to_username,
-          first_name: to_first_name,
-          last_name: to_last_name,
-          phone: to_phone
+          first_name: m.to_first_name,
+          last_name: m.to_last_name,
+          phone: m.to_phone
         },
         body: m.body,
         sent_at: m.sent_at,
