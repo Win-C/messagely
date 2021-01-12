@@ -19,15 +19,16 @@ const { UnauthorizedError } = require('../expressError');
  *
  **/
 
-router.get('/:id/', ensureLoggedIn, async function(req, res, next) {
-	const message = await Message.get(req.params.id);
-	const from_username = res.locals.user.username;
+router.get('/:id/', ensureLoggedIn, async function (req, res, next) {
+  const message = await Message.get(req.params.id);
+  const from_username = res.locals.user.username;
 
-	if (message.from_user.username !== from_username && message.to_user.username !== from_username) {
-		throw new UnauthorizedError(`You are not authorized to view the message!`);
-	}
+  if ((message.from_user.username !== from_username) &&
+    (message.to_user.username !== from_username)) {
+    throw new UnauthorizedError(`You are not authorized to view the message!`);
+  }
 
-	return res.send({ message });
+  return res.send({ message });
 });
 
 /** POST / - post message.
@@ -37,12 +38,12 @@ router.get('/:id/', ensureLoggedIn, async function(req, res, next) {
  *
  **/
 
-router.post('/', ensureLoggedIn, async function(req, res, next) {
-	const { to_username, body } = req.body;
-	const from_username = res.locals.user.username;
-	const message = await Message.create({ from_username, to_username, body });
+router.post('/', ensureLoggedIn, async function (req, res, next) {
+  const { to_username, body } = req.body;
+  const from_username = res.locals.user.username;
+  const message = await Message.create({ from_username, to_username, body });
 
-	return res.status(201).send({ message });
+  return res.status(201).send({ message });
 });
 
 /** POST/:id/read - mark message as read:
@@ -53,23 +54,23 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  *
  **/
 
-router.post('/:id/read', ensureLoggedIn, async function(req, res, next) {
-	const id = req.params.id;
+router.post('/:id/read', ensureLoggedIn, async function (req, res, next) {
+  const id = req.params.id;
   const currentUser = res.locals.user.username;
   const message = await Message.get(id);
 
-	await Message.markRead(id);
+  await Message.markRead(id);
 
-	if (currentUser !== message.to_user.username) {
-		throw new UnauthorizedError(`You are not authorized to read the message!`);
-	}
+  if (currentUser !== message.to_user.username) {
+    throw new UnauthorizedError(`You are not authorized to read the message!`);
+  }
 
-	return res.status(201).send({
-		message: {
-			id: message.id,
-			read_at: message.read_at
-		}
-	});
+  return res.status(201).send({
+    message: {
+      id: message.id,
+      read_at: message.read_at
+    }
+  });
 });
 
 module.exports = router;
