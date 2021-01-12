@@ -13,13 +13,15 @@ const { UnauthorizedError } = require("../expressError.js");
 router.post("/login", async function (req, res, next) {
   const { username, password } = req.body;
 
-  if (User.authenticate(username, password)) {
-    const token = jwt.sign({ username }, SECRET_KEY);
-
-    return res.json({ token });
-  } else {
+  if (await User.authenticate(username, password) !== true) {
     throw new UnauthorizedError("Invalid user/password");
   }
+
+  await User.updateLoginTimestamp(username);
+
+  const token = jwt.sign({ username }, SECRET_KEY);
+
+  return res.json({ token });
 });
 // end
 
@@ -30,8 +32,9 @@ router.post("/login", async function (req, res, next) {
 
 router.post("/register", async function (req, res, next) {
   const { username, password, first_name, last_name, phone } = req.body;
-  User.register({ username, password, first_name, last_name, phone });
   const token = jwt.sign({ username }, SECRET_KEY, JWT_OPTIONS);
+
+  await User.register({ username, password, first_name, last_name, phone });
 
   return res.json({ token });
 });
