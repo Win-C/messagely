@@ -4,7 +4,7 @@ const Router = require('express').Router;
 const router = new Router();
 const { ensureLoggedIn } = require('../middleware/auth.js');
 const Message = require('../models/message.js');
-const { UnauthorizedError } = require('../expressError');
+const { UnauthorizedError } = require('../expressError.js');
 
 /** GET /:id - get detail of message.
  *
@@ -23,12 +23,13 @@ router.get('/:id/', ensureLoggedIn, async function (req, res, next) {
   const message = await Message.get(req.params.id);
   const from_username = res.locals.user.username;
 
+  // TODO: create middleware for this like ensureCorrectUserForMsg
   if ((message.from_user.username !== from_username) &&
     (message.to_user.username !== from_username)) {
     throw new UnauthorizedError(`You are not authorized to view the message!`);
   }
 
-  return res.send({ message });
+  return res.json({ message });
 });
 
 /** POST / - post message.
@@ -43,7 +44,7 @@ router.post('/', ensureLoggedIn, async function (req, res, next) {
   const from_username = res.locals.user.username;
   const message = await Message.create({ from_username, to_username, body });
 
-  return res.status(201).send({ message });
+  return res.status(201).json({ message });
 });
 
 /** POST/:id/read - mark message as read:
@@ -57,20 +58,16 @@ router.post('/', ensureLoggedIn, async function (req, res, next) {
 router.post('/:id/read', ensureLoggedIn, async function (req, res, next) {
   const id = req.params.id;
   const currentUser = res.locals.user.username;
-  const message = await Message.get(id);
+  const m = await Message.get(id);
 
-  await Message.markRead(id);
+  const message = await Message.markRead(id);
 
-  if (currentUser !== message.to_user.username) {
+  // TODO: create middleware for this test
+  if (currentUser !== m.to_user.username) {
     throw new UnauthorizedError(`You are not authorized to read the message!`);
   }
 
-  return res.status(201).send({
-    message: {
-      id: message.id,
-      read_at: message.read_at
-    }
-  });
+  return res.status(201).json({ message });
 });
 
 module.exports = router;
