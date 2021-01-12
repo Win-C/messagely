@@ -13,7 +13,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   join_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-  last_login_at TIMESTAMP WITH TIME ZONE);
+  last_login_at TIMESTAMP WITH TIME ZONE,);
 
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
@@ -23,6 +23,10 @@ CREATE TABLE messages (
   sent_at TIMESTAMP WITH TIME ZONE NOT NULL,
   read_at TIMESTAMP WITH TIME ZONE);
 
+CREATE TABLE login_resets (
+  username TEXT PRIMARY KEY,
+  random_code TEXT NOT NULL,
+  reset_at TIMESTAMP WITH TIME ZONE);
 
 \echo 'Delete and recreate messagely_test db?'
 \prompt 'Return for yes or control-C to cancel > ' foo
@@ -47,4 +51,9 @@ CREATE TABLE messages (
   body TEXT NOT NULL,
   sent_at TIMESTAMP WITH TIME ZONE NOT NULL,
   read_at TIMESTAMP WITH TIME ZONE);
+
+CREATE TABLE login_resets (
+  username TEXT PRIMARY KEY,
+  random_code TEXT NOT NULL,
+  reset_at TIMESTAMP WITH TIME ZONE,);
 

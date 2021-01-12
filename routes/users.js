@@ -4,6 +4,7 @@ const Router = require("express").Router;
 const router = new Router();
 const User = require("../models/user.js");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth.js");
+const { UnauthorizedError } = require('../expressError');
 
 // NOTE: res.json better with headers than res.send
 
@@ -61,18 +62,32 @@ router.get("/:username/from", ensureCorrectUser, async function (req, res, next)
   return res.json({ messages });
 });
 
-/** POST /:username/ - change password for user
+/** GET /:username/reset-password - get and SMS send reset password code for user
+ *  = > { code , link } QUESTION: send link vs. redirect?
+ * 
  **/
 
-//    random codes 
-// Get username from user
-// Check username exists in database
-// If yes, get random 6-digit code
-// Send random code to user
-// Update database with 6-digit code with username and current timestampe
+router.get("/:username/reset-password", async function (req, res, next) {
+  const username = req.params.username;
+  await User.resetCode(username);
+  return res.json({ message: 'A reset code and link has been sent to you.'});
+});
 
-router.get("/updateuser/", async function (req, res, next) {
+/** POST /:username/reset-verification - verify and reset password for user
+ * 
+ * { username, newPassword, code } 
+ * = > 
+ *    { message: login information updated}
+ **/
+
+router.post("/:username/reset-verification", async function (req, res, next) {
+  const { username, newPassword, code } = req.body;
+  if (await User.isValidCode(username, code)){
+    await User.updatePassword(username, newPassword);
+    await User.deleteResetCode(username);
+  }
   
+  return res.json({ message: `${username} login information updated.`});
 });
 
 module.exports = router;

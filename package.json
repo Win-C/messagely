@@ -13,6 +13,7 @@
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "crypto-random-string": "^3.3.0",
     "dotenv": "^8.2.0",
     "express": "^5.0.0-alpha.8",
     "express-cors": "^0.0.3",
