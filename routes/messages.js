@@ -19,13 +19,13 @@ const { UnauthorizedError } = require('../expressError');
  *
  **/
 
-router.get('/:id/', ensureLoggedIn, async function(req, res, next) {
+router.get('/:id/', async function(req, res, next) {
 	const message = await Message.get(req.params.id);
-	const from_username = res.locals.user.username;
+	// const from_username = res.locals.user.username;
 
-	if (message.from_user.username !== from_username && message.to_user.username !== from_username) {
-		throw new UnauthorizedError(`You are not authorized to view the message!`);
-	}
+	// if (message.from_user.username !== from_username && message.to_user.username !== from_username) {
+	// 	throw new UnauthorizedError(`You are not authorized to view the message!`);
+	// }
 
 	return res.send({ message });
 });
@@ -37,10 +37,10 @@ router.get('/:id/', ensureLoggedIn, async function(req, res, next) {
  *
  **/
 
-router.post('/', ensureLoggedIn, async function(req, res, next) {
+router.post('/', async function(req, res, next) {
 	const { to_username, body } = req.body;
 	const from_username = res.locals.user.username;
-	const message = Message.create({ from_username, to_username, body });
+	const message = await Message.create({ from_username, to_username, body });
 
 	return res.status(201).send({ message });
 });
@@ -53,16 +53,17 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  *
  **/
 
-router.post('/:id/read', ensureLoggedIn, async function(req, res, next) {
+router.post('/:id/read', async function(req, res, next) {
 	const { id } = req.params.id;
-	const currentUser = res.locals.user.username;
-	const message = Message.get(id);
+	// const currentUser = res.locals.user.username;
+  const message = await Message.get(id);
+  console.log("message = ", message);
 
 	Message.markRead({ id });
 
-	if (currentUser !== message.to_user.username) {
-		throw new UnauthorizedError(`You are not authorized to read the message!`);
-	}
+	// if (currentUser !== message.to_user.username) {
+	// 	throw new UnauthorizedError(`You are not authorized to read the message!`);
+	// }
 
 	return res.status(201).send({
 		message: {
