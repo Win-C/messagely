@@ -42,7 +42,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 	const from_username = res.locals.user.username;
 	const message = Message.create({ from_username, to_username, body });
 
-	return res.json({ message });
+	return res.status(201).send({ message });
 });
 
 /** POST/:id/read - mark message as read:
@@ -64,7 +64,7 @@ router.post('/:id/read', ensureLoggedIn, async function(req, res, next) {
 		throw new UnauthorizedError(`You are not authorized to read the message!`);
 	}
 
-	return res.json({
+	return res.status(201).send({
 		message: {
 			id: message.id,
 			read_at: message.read_at
