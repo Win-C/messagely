@@ -61,4 +61,18 @@ router.get("/:username/from", ensureCorrectUser, async function (req, res, next)
   return res.json({ messages });
 });
 
+/** POST /:username/ - change password for user
+ **/
+
+//    random codes 
+// Get username from user
+// Check username exists in database
+// If yes, get random 6-digit code
+// Send random code to user
+// Update database with 6-digit code with username and current timestampe
+
+router.get("/updateuser/", async function (req, res, next) {
+  
+});
+
 module.exports = router;

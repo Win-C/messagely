@@ -16,17 +16,12 @@ const BCRYPT_WORK_FACTOR = 12;
 
 const JWT_OPTIONS = { expiresIn: 60*60 }; // 1 hour
 
-const accountSid = process.env.accountSid;
-const authToken = process.env.authToken;
-
-const twilioNumber = process.env.twilioNumber;
+const TWILIO_NUMBER = process.env.TWILIO_NUMBER;
 
 module.exports = {
   DB_URI,
   SECRET_KEY,
   BCRYPT_WORK_FACTOR,
   JWT_OPTIONS,
-  accountSid,
-  authToken,
-  twilioNumber,
+  TWILIO_NUMBER,
 };
