@@ -10,12 +10,13 @@ Note: the following documentation focuses on the backend. For frontend related d
 
 TODO: TBU with application screenshots
 
-**Database**
+**Database Entity Relationships**
 
 <img src="/static/images/database-er-diagram.png" width="500" height="250">
 
 - Key relationships:
-
+    - Each user may have sent many messages 
+    - Each user may have received many messages 
 
 ## Current features
 - 
@@ -39,9 +40,10 @@ Note: See package.json file for full list and associated package versions.
 ## Installation
 **Backend Development Setup**
 
-A starter database is provided which can be used to create a messagely database:
+A starter database is provided which can be used to create and seed a messagely database:
 ```console
-createdb messagely < messagely.sql
+createdb messagely 
+psql messagely < messagely.sql
 ```
 
 We used Node.js for our back-end JavaScript runtime environment. To install the backend dependencies from the package.json file:
