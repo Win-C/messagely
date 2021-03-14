@@ -15,8 +15,7 @@ TODO: TBU with application screenshots
 <img src="/static/images/database-er-diagram.png" width="500" height="250">
 
 - Key relationships:
-    - Each user may have sent many messages 
-    - Each user may have received many messages 
+    - Each user may have sent many messages and may have received many messages (many-to-many)
 
 ## Current features
 - 
