@@ -27,7 +27,7 @@ Messagely was an opportunity to work with authentication and authorization routi
 
 ## Current features
 - user model includes register, authenticate, updateLoginTimestamp, all, get, messagesFrom, and messagesTo methods
-- message model includes  methods
+- message model includes create, markRead, and get methods
 - auth routes include /login and /register using JSON web tokens
 - users routes include
     - GET / - get list of users
@@ -37,6 +37,7 @@ Messagely was an opportunity to work with authentication and authorization routi
 - messages routes include 
     - GET /:id - get detail of a message
     - POST / - create a message
+    - POST /:id/read - mark message as read
 - Note: all routes check for security:
     - any logged-in user can see the list of users 
     - only that user can view their get-user-detail route, or their from-messages or to-messages routes
