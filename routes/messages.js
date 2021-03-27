@@ -2,8 +2,9 @@
 
 const Router = require('express').Router;
 const router = new Router();
-const { ensureLoggedIn } = require('../middleware/auth.js');
+
 const Message = require('../models/message.js');
+const { ensureLoggedIn } = require('../middleware/auth.js');
 const { UnauthorizedError } = require('../expressError.js');
 
 /** GET /:id - get detail of message.
@@ -23,10 +24,9 @@ router.get('/:id/', ensureLoggedIn, async function (req, res, next) {
   const message = await Message.get(req.params.id);
   const from_username = res.locals.user.username;
 
-  // TODO: create middleware for this like ensureCorrectUserForMsg
-  if ((message.from_user.username !== from_username) &&
-    (message.to_user.username !== from_username)) {
-    throw new UnauthorizedError(`You are not authorized to view the message!`);
+  if ((message.from_user.username !== from_username) 
+    && (message.to_user.username !== from_username)) {
+    throw new UnauthorizedError(`Cannot read this message`);
   }
 
   return res.json({ message });
@@ -59,13 +59,13 @@ router.post('/:id/read', ensureLoggedIn, async function (req, res, next) {
   const id = req.params.id;
   const currentUser = res.locals.user.username;
   const m = await Message.get(id);
-
-  const message = await Message.markRead(id);
-
+  
   // TODO: create middleware for this test
   if (currentUser !== m.to_user.username) {
-    throw new UnauthorizedError(`You are not authorized to read the message!`);
+    throw new UnauthorizedError(`Cannot read this message`);
   }
+  
+  const message = await Message.markRead(id);
 
   return res.status(201).json({ message });
 });

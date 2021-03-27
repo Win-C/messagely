@@ -42,7 +42,7 @@ class Message {
     const to = `+${to_user.phone}`;
 
     const message = await client.messages.create({ body, from, to })
-    console.log(message.sid);
+    console.debug(`Message ${message.sid} sent.`);
   }
 
   /** Update read_at for message */

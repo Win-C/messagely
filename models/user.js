@@ -11,6 +11,7 @@ const { TWILIO_NUMBER } = require("../config.js");
 /** User of the site. */
 
 class User {
+
 	/** Register new user. Returns
    *    {username, password, first_name, last_name, phone}
    */
@@ -35,6 +36,7 @@ class User {
 	}
 
 	/** Send a random 6-digit code to user via SMS to reset password */
+
 	static async resetCode(username){
 		const user = await User.get(username);
 		const code = cryptoRandomString({length: 6, type: 'numeric'});
@@ -60,8 +62,9 @@ class User {
 	}
 
 	/** Authenticate: is code sent is valid? Return boolean. */
+
 	static async isValidCode(username, code){
-		// TODO: How to compare timestamp in SQL
+		// TODO: Update password reset to evaluate code based on timestamp in SQL
 		const result = await db.query(
 			`SELECT username, random_code, reset_at
 				FROM login_resets
@@ -109,8 +112,7 @@ class User {
   
 	static async authenticate(username, password) {
 		const result = await db.query(
-			`SELECT username,
-              password
+			`SELECT password
         FROM users
         WHERE username = $1`,
 			[ username ]
@@ -128,14 +130,12 @@ class User {
 			`UPDATE users
        SET last_login_at = current_timestamp
          WHERE username = $1
-         RETURNING username, password, first_name, last_name, phone `,
+         RETURNING username `,
 			[ username ]
 		);
     const user = result.rows[0]; 
 
     if (!user) throw new NotFoundError(`No such user: ${username}`);
-
-    return user; 
 	}
 
 	/** All: basic info on all users:
@@ -209,8 +209,7 @@ class User {
 
 		if (messages.length === 0) throw new NotFoundError(`No messages from user: ${username}`);
 
-		return messages.map( m => {
-			return {
+		return messages.map( m => ({
 				id: m.id,
 				to_user: {
 					username: m.to_username,
@@ -221,8 +220,7 @@ class User {
 				body: m.body,
 				sent_at: m.sent_at,
 				read_at: m.read_at
-			};
-		});
+		}));
 	}
 
 	/** Return messages to this user.
@@ -253,8 +251,7 @@ class User {
 
 		if (messages.length === 0) throw new NotFoundError(`No messages to user: ${username}`);
 
-		return messages.map( m => {
-			return {
+		return messages.map( m => ({
 				id: m.id,
 				from_user: {
 					username: m.from_username,
@@ -265,8 +262,7 @@ class User {
 				body: m.body,
 				sent_at: m.sent_at,
 				read_at: m.read_at
-			};
-		});
+		}));
 	}
 }
 
