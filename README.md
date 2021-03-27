@@ -18,8 +18,7 @@ Messagely was an opportunity to work with authentication and authorization routi
 
 <img src="/static/images/database-er-diagram.png" width="500" height="250">
 
-- Key relationships:
-    - Each user may have sent and received many messages (many-to-many)
+- Key relationship: each user may have sent and received many messages (many-to-many)
 
 ## Build status
 - Initial users and messages routes with authentication and authorization completed
@@ -27,15 +26,37 @@ Messagely was an opportunity to work with authentication and authorization routi
 - WIP on minimum viable product
 
 ## Current features
-- 
+- user model includes register, authenticate, updateLoginTimestamp, all, get, messagesFrom, and messagesTo methods
+- message model includes  methods
+- auth routes include /login and /register using JSON web tokens
+- users routes include
+    - GET / - get list of users
+    - GET /:username - get detail of users
+    - GET /:username/to - get messages to user
+    - GET /:username/from - get messages from user
+- messages routes include 
+    - GET /:id - get detail of a message
+    - POST / - create a message
+- Note: all routes check for security:
+    - any logged-in user can see the list of users 
+    - only that user can view their get-user-detail route, or their from-messages or to-messages routes
+    - only the sender or recipient of a message can view the message-detail route
+    - only the recipient of a message can mark it as read
+    - any logged-in user can send a message to any other user
+- Integration tests written for routes
+- SMS is sent with a new message
 
 ## Upcoming features
+- SMS-backed password reset feature - WIP
 - Build out of CRUD routes for messages to include updating and deleting messages
 - Build out of CRUD routes for users to include updating user informaing and deleting users by admin
+- Build a front end for application
+- Refactor classes for instance methods instead of static methods
 
 ## Tech stack
 - PostgreSQL for database
-- Express / JavaScript for backend
+- Express.js / Node.js for backend
+- Twilio for sending SMS of messages
 
 ## Dependencies
 **Backend dependencies** include:
@@ -82,7 +103,7 @@ Note: any time you run our tests here, you will need to use the -i flag for Jest
 
 **Coverage Report**:
 
-<img src="" width="600" height="250">
+<img src="/static/images/test-coverage-report.png" width="600" height="250">
 
 ## Authors
 - Winnie Chou
