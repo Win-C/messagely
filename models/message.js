@@ -4,8 +4,8 @@
 
 const { NotFoundError } = require("../expressError");
 const db = require("../db");
-const client = require("../twilio.js");
-const { TWILIO_NUMBER } = require("../config.js");
+// const client = require("../twilio.js");
+// const { TWILIO_NUMBER } = require("../config.js");
 
 /** Message on the site. */
 
@@ -18,16 +18,16 @@ class Message {
   static async create({ from_username, to_username, body }) {
     const result = await db.query(
       `INSERT INTO messages (from_username,
-                                 to_username,
-                                 body,
-                                 sent_at)
+                             to_username,
+                             body,
+                             sent_at)
              VALUES
                ($1, $2, $3, current_timestamp)
              RETURNING id, from_username, to_username, body, sent_at`,
       [from_username, to_username, body]);
     const message = result.rows[0];
     
-    this._sendSmsToUser(message)
+    // this._sendSmsToUser(message)
 
     return message;
   }
@@ -35,15 +35,15 @@ class Message {
 
   /** Send SMS to user that received message (to_username in messages table) */
 
-  static async _sendSmsToUser(m) {
-    const to_user = (await this.get(m.id)).to_user;
-    const body = m.body;
-    const from = TWILIO_NUMBER;
-    const to = `+${to_user.phone}`;
+  // static async _sendSmsToUser(m) {
+  //   const to_user = (await this.get(m.id)).to_user;
+  //   const body = m.body;
+  //   const from = TWILIO_NUMBER;
+  //   const to = `+${to_user.phone}`;
 
-    const message = await client.messages.create({ body, from, to })
-    console.debug(`Message ${message.sid} sent.`);
-  }
+  //   const message = await client.messages.create({ body, from, to })
+  //   console.debug(`Message ${message.sid} sent.`);
+  // }
 
   /** Update read_at for message */
 

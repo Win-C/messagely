@@ -13,7 +13,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   join_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-  last_login_at TIMESTAMP WITH TIME ZONE,);
+  last_login_at TIMESTAMP WITH TIME ZONE);
 
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
@@ -55,5 +55,5 @@ CREATE TABLE messages (
 CREATE TABLE login_resets (
   username TEXT PRIMARY KEY,
   random_code TEXT NOT NULL,
-  reset_at TIMESTAMP WITH TIME ZONE,);
+  reset_at TIMESTAMP WITH TIME ZONE);
 

@@ -1,12 +1,12 @@
 'use strict';
 
-const db = require('../db');
 const bcrypt = require('bcrypt');
 const { BCRYPT_WORK_FACTOR } = require('../config');
-const cryptoRandomString = require('crypto-random-string');
+const db = require('../db');
 const { NotFoundError } = require('../expressError');
-const client = require("../twilio.js");
-const { TWILIO_NUMBER } = require("../config.js");
+// const cryptoRandomString = require('crypto-random-string');
+// const client = require("../twilio.js");
+// const { TWILIO_NUMBER } = require("../config.js");
 
 /** User of the site. */
 
@@ -37,76 +37,76 @@ class User {
 
 	/** Send a random 6-digit code to user via SMS to reset password */
 
-	static async resetCode(username){
-		const user = await User.get(username);
-		const code = cryptoRandomString({length: 6, type: 'numeric'});
-		const hashedCode = await bcrypt.hash(code, BCRYPT_WORK_FACTOR);
+	// static async resetCode(username){
+	// 	const user = await User.get(username);
+	// 	const code = cryptoRandomString({length: 6, type: 'numeric'});
+	// 	const hashedCode = await bcrypt.hash(code, BCRYPT_WORK_FACTOR);
 
-		await db.query(
-			`INSERT INTO login_resets (
-				username,
-				random_code,
-				reset_at
-				)
-			VALUES
-			($1, $2, current_timestamp)`,
-			[ username, hashedCode ]
-		);
+	// 	await db.query(
+	// 		`INSERT INTO login_resets (
+	// 			username,
+	// 			random_code,
+	// 			reset_at
+	// 			)
+	// 		VALUES
+	// 		($1, $2, current_timestamp)`,
+	// 		[ username, hashedCode ]
+	// 	);
 
-		const body = `Here is your reset code: ${code}. Go to /:username/reset-verification/ to reset password.`;
-    const from = TWILIO_NUMBER;
-    const to = `+${user.phone}`;
+	// 	const body = `Here is your reset code: ${code}. Go to /:username/reset-verification/ to reset password.`;
+  //   const from = TWILIO_NUMBER;
+  //   const to = `+${user.phone}`;
 
-    const message = await client.messages.create({ body, from, to })
-    console.log(message.sid);
-	}
+  //   const message = await client.messages.create({ body, from, to })
+  //   console.log(message.sid);
+	// }
 
 	/** Authenticate: is code sent is valid? Return boolean. */
 
-	static async isValidCode(username, code){
-		// TODO: Update password reset to evaluate code based on timestamp in SQL
-		const result = await db.query(
-			`SELECT username, random_code, reset_at
-				FROM login_resets
-				WHERE username = $1`,
-			[ username ]
-		);
-		const user = result.rows[0];
+	// static async isValidCode(username, code){
+	// 	// TODO: Update password reset to evaluate code based on timestamp in SQL
+	// 	const result = await db.query(
+	// 		`SELECT username, random_code, reset_at
+	// 			FROM login_resets
+	// 			WHERE username = $1`,
+	// 		[ username ]
+	// 	);
+	// 	const user = result.rows[0];
 		
-		if (!user) throw new NotFoundError(`No such user: ${username}`);
+	// 	if (!user) throw new NotFoundError(`No such user: ${username}`);
 
-		const hashedCode = user.random_code;
-		const timestamp = user.reset_at;
+	// 	const hashedCode = user.random_code;
+	// 	const timestamp = user.reset_at;
 
-		return (await bcrypt.compare(code, hashedCode) === true);
-	}
+	// 	return (await bcrypt.compare(code, hashedCode) === true);
+	// }
 
 	/** Update password for user */
   
-	static async updatePassword(username, newPassword) {
-		const hashedNewPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR);
-		const result = await db.query(
-			`UPDATE users
-				SET password = $1
-				WHERE username = $2
-				RETURNING username, password, first_name, last_name, phone `,
-		 [ hashedNewPassword, username ]
-		);
-		const user = result.rows[0];
+	// static async updatePassword(username, newPassword) {
+	// 	const hashedNewPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR);
+	// 	const result = await db.query(
+	// 		`UPDATE users
+	// 			SET password = $1
+	// 			WHERE username = $2
+	// 			RETURNING username, password, first_name, last_name, phone `,
+	// 	 [ hashedNewPassword, username ]
+	// 	);
+	// 	const user = result.rows[0];
 
-		return user;
-	}
+	// 	return user;
+	// }
 
 	/** Delete password reset code for user */
   
-	static async deleteResetCode(username) {
-		await db.query(
-			`DELETE FROM login_resets
-				WHERE username = $1`,
-		 [ username ]
-		);
-		console.log("reset code removed");
-	}
+	// static async deleteResetCode(username) {
+	// 	await db.query(
+	// 		`DELETE FROM login_resets
+	// 			WHERE username = $1`,
+	// 	 [ username ]
+	// 	);
+	// 	console.log("reset code removed");
+	// }
   
   /** Authenticate: is username/password valid? Returns boolean. */
   

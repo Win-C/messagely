@@ -3,7 +3,7 @@
 /** Common config for message.ly */
 
 // read .env files and make environmental variables
-// Note: eads your .env file that you created with SECRET_KEY
+// Note: reads your .env file that you created with SECRET_KEY
 require("dotenv").config();
 
 const DB_URI = (process.env.NODE_ENV === "test")

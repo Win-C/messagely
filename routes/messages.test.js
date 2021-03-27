@@ -1,7 +1,7 @@
 "use strict";
 
 const request = require("supertest");
-const jwt = required("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const app = require("../app");
 const db = require("../db");
@@ -43,19 +43,19 @@ describe("Message Routes Test", function (){
       phone: "+14155553333",
     });
 
-    let m1 = await Message.register({
+    let m1 = await Message.create({
       from_username: "test1",
       to_username: "test2",
       body: "test1 -> test2",
     });
 
-    let m2 = await Message.register({
+    let m2 = await Message.create({
       from_username: "test2",
       to_username: "test1",
       body: "test2 -> test1",
     });
 
-    let m3 = await Message.register({
+    let m3 = await Message.create({
       from_username: "test2",
       to_username: "test3",
       body: "test2 -> test3",
@@ -67,7 +67,7 @@ describe("Message Routes Test", function (){
   /** GET /messages/:id => {message} */
 
   describe("GET /messages/:id", function (){
-    testUserToken("can get message from user", async function () {
+    test("can get message from user", async function () {
       let response = await request(app)
           .get("/messages/1")
           .send({ _token: testUserToken});
@@ -98,14 +98,75 @@ describe("Message Routes Test", function (){
   
   /** POST /messages => {message} with status code of 201*/
   
-  // describe("POST /messages/", function (){
+  describe("POST /messages/", function (){
+    test("can post message", async function () {
+      let response = await request(app)
+          .post("/messages/")
+          .send({
+            to_username: "test2",
+            body: "another test1 -> test2",
+            _token: testUserToken,
+          });
 
-  // });
+      expect(response.body).toEqual({
+        message: {
+          id: 4,
+          sent_at: expect.any(String),
+          from_username: "test1",
+          to_username: "test2",
+          body: "another test1 -> test2",
+        },
+      });
+    });
+
+    test("cannot send to bad username", async function () {
+      let response = await request(app)
+          .post("/messages/")
+          .send({
+            to_username: "wrong",
+            body: "body here",
+            _token: testUserToken,
+          });
+
+      expect(response.statusCode).toEqual(500);
+    });
+  });
   
   /** POST /messages/:id/read => {message} with status code of 201 */
   
-  // describe("POST /messages/:id/read", function (){
-    
-  // });
+  describe("POST /messages/:id/read", function (){
+    test("can mark users messages read", async function () {
+      let response = await request(app)
+          .post("/messages/2/read")
+          .send({ _token: testUserToken });
+
+      expect(response.body).toEqual({
+        message: {
+          id: 2,
+          read_at: expect.any(String),
+        },
+      });
+    });
+
+    test("bad message id", async function () {
+      let response = await request(app)
+          .post("/messages/999/read")
+          .send({ _token: testUserToken });
+
+      expect(response.statusCode).toEqual(404);
+    });
+
+    test("can't mark other messages read", async function () {
+      let response = await request(app)
+          .post("/messages/1/read")
+          .send({ _token: testUserToken });
+
+      expect(response.statusCode).toEqual(401);
+    });
+  });
   
+});
+
+afterAll(async function () {
+  await db.end();
 });
